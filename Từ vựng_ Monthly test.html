@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Từ vựng: Monthly test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12301f;
+    --ink-soft:#3f5548;
+    --paper:#eef3ec;
+    --card:#ffffff;
+    --amber:#c8871a;
+    --amber-deep:#a86e10;
+    --good:#1f7a4d;
+    --good-bg:#e3f3e8;
+    --bad:#b23b2e;
+    --bad-bg:#fbe7e3;
+    --line: rgba(18,48,31,0.16);
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 64px;
+    line-height:1.5;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px);
+    background-size: 100% 120px;
+    opacity:0.35;
+    z-index:0;
+  }
+  .wrap{ position:relative; z-index:1; width:100%; max-width:620px; }
+  header.top{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:22px; gap:12px;
+  }
+  header.top h1{
+    font-family:var(--serif); font-size:20px; font-weight:600; margin:0; letter-spacing:-0.01em;
+  }
+  header.top .tag{ font-size:13px; color:var(--ink-soft); white-space:nowrap; }
+  .progress-track{
+    height:6px; background:rgba(18,48,31,0.12); border-radius:3px; overflow:hidden; margin-bottom:36px;
+  }
+  .progress-fill{ height:100%; background:var(--amber); width:0%; transition:width .35s ease; }
+
+  .card{ background:var(--card); border:2px solid var(--ink); border-radius:6px; padding:32px 28px; }
+  .qmeta{ display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--ink-soft); margin-bottom:18px; }
+  .prompt-label{ font-size:13px; color:var(--ink-soft); margin-bottom:6px; }
+  .term{ font-family:var(--serif); font-size:25px; font-weight:700; line-height:1.25; margin:0 0 6px; }
+  .ipa{ font-size:15px; color:var(--amber-deep); margin:0 0 26px; font-weight:500; }
+
+  .choices{ display:flex; flex-direction:column; gap:10px; }
+  .choice-btn{
+    text-align:left; background:var(--card); border:1.5px solid var(--ink); border-radius:5px;
+    padding:13px 16px; font-family:var(--sans); font-size:15px; color:var(--ink); cursor:pointer;
+    transition:background .15s ease;
+  }
+  .choice-btn:hover:not(:disabled){ background:#f1ede1; }
+  .choice-btn:disabled{ cursor:default; }
+  .choice-btn.correct{ background:var(--good-bg); border-color:var(--good); color:var(--good); font-weight:600; }
+  .choice-btn.wrong{ background:var(--bad-bg); border-color:var(--bad); color:var(--bad); font-weight:600; }
+
+  .feedback{ margin-top:20px; padding-top:18px; border-top:1px dashed var(--line); display:none; }
+  .feedback.show{ display:block; }
+  .fb-verdict{ font-weight:700; font-size:15px; margin-bottom:8px; }
+  .fb-verdict.good{ color:var(--good); }
+  .fb-verdict.bad{ color:var(--bad); }
+  .fb-meaning{ font-size:15px; }
+  .fb-example{ font-size:14px; color:var(--ink-soft); font-style:italic; margin-top:6px; }
+  .next-btn{
+    margin-top:20px; width:100%; font-family:var(--sans); font-weight:700; font-size:15px;
+    padding:13px; background:var(--amber); color:#2a1c02; border:none; border-radius:5px; cursor:pointer;
+  }
+  .next-btn:hover{ background:var(--amber-deep); color:#fff; }
+
+  .results h2{ font-family:var(--serif); font-size:28px; margin:0 0 6px; }
+  .score-big{ font-family:var(--serif); font-size:56px; font-weight:700; color:var(--amber-deep); margin:14px 0 4px; }
+  .score-sub{ color:var(--ink-soft); font-size:14px; margin-bottom:26px; }
+  .review-list{ list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; }
+  .review-list li{ border-left:3px solid var(--bad); padding:8px 14px; background:var(--bad-bg); border-radius:0 4px 4px 0; font-size:14px; }
+  .review-list li b{ font-family:var(--serif); font-size:15px; }
+  .no-wrong{ font-size:14px; color:var(--good); margin-bottom:24px; }
+  .restart-btn{
+    width:100%; font-family:var(--sans); font-weight:700; font-size:15px; padding:14px;
+    background:var(--ink); color:var(--paper); border:none; border-radius:5px; cursor:pointer;
+  }
+
+  @media (max-width:480px){
+    .card{ padding:24px 18px; }
+    .term{ font-size:20px; }
+    .score-big{ font-size:44px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Từ vựng: Monthly test</h1>
+    <span class="tag" id="counterTag">1 / 60</span>
+  </header>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="card" id="quizCard"></div>
+</div>
+
+<script>
+const VOCAB = [
+{term:"establish / set up",ipa:"/ɪˈstæblɪʃ / set ʌp/",meaning:"thành lập, xây dựng (đồng nghĩa với found)",example:"He established the company in 1990."},
+{term:"found (founded)",ipa:"/faʊnd/",meaning:"thành lập",example:"He founded Apple in 1976 with Steve Wozniak."},
+{term:"revolutionize",ipa:"/ˌrevəˈluːʃənaɪz/",meaning:"cách mạng hóa",example:"His inventions revolutionized the technology world."},
+{term:"success → successful → successfully",ipa:"/səkˈses, səkˈsesfl, səkˈsesfəli/",meaning:"biến đổi từ loại (thành công: n/adj/adv)",example:"She successfully launched her own business."},
+{term:"lược bỏ chủ ngữ trong mệnh đề rút gọn",ipa:"—",meaning:"cấu trúc rút gọn mệnh đề khi 2 vế cùng chủ ngữ",example:"In 1985, Jobs left the company but returned in 1997 (same subject, no repetition needed)."},
+{term:"pass away",ipa:"/pæs əˈweɪ/",meaning:"qua đời",example:"He passed away in 2011 after battling cancer."},
+{term:"put away",ipa:"/pʊt əˈweɪ/",meaning:"cất đi",example:"Please put away your toys after playing."},
+{term:"take away",ipa:"/teɪk əˈweɪ/",meaning:"lấy đi, mang đi",example:"The waiter took away our empty plates."},
+{term:"battle cancer",ipa:"/ˈbætl ˈkænsər/",meaning:"chống chọi với ung thư",example:"He continued working while battling cancer."},
+{term:"legacy",ipa:"/ˈleɡəsi/",meaning:"di sản",example:"His legacy continues to inspire people today."},
+{term:"invite sb to V",ipa:"/ɪnˈvaɪt tuː/",meaning:"mời ai làm gì (cấu trúc to-infinitive)",example:"We invited everyone to help clean the park."},
+{term:"reduce waste",ipa:"/rɪˈdjuːs weɪst/",meaning:"giảm thiểu rác thải",example:"We should reduce waste by recycling more."},
+{term:"unplug devices",ipa:"/ʌnˈplʌɡ dɪˈvaɪsɪz/",meaning:"rút phích cắm thiết bị",example:"Remember to unplug devices when not in use."},
+{term:"some + adj + N",ipa:"/sʌm/",meaning:"trật tự từ: lượng từ + tính từ + danh từ",example:"There are some easy ways to save energy."},
+{term:"beautify",ipa:"/ˈbjuːtɪfaɪ/",meaning:"làm đẹp",example:"Planting trees helps beautify our community."},
+{term:"turn off the tap",ipa:"/tɜːrn ɒf ðə tæp/",meaning:"tắt vòi nước",example:"Turn off the tap while brushing your teeth."},
+{term:"instead of",ipa:"/ɪnˈsted əv/",meaning:"thay vì",example:"Walk instead of driving short distances."},
+{term:"activist",ipa:"/ˈæktɪvɪst/",meaning:"nhà hoạt động xã hội",example:"She is a well-known activist for girls' education."},
+{term:"take sb's breath away",ipa:"/teɪk breθ əˈweɪ/",meaning:"khiến ai đó choáng ngợp, ấn tượng mạnh",example:"The beautiful scenery took my breath away."},
+{term:"broaden your perspective",ipa:"/ˈbrɔːdn jɔːr pərˈspektɪv/",meaning:"mở rộng tầm nhìn",example:"Studying abroad can broaden your perspective."},
+{term:"toxic / contaminated",ipa:"/ˈtɒksɪk / kənˈtæmɪneɪtɪd/",meaning:"độc hại / bị ô nhiễm",example:"The river water was found to be toxic."},
+{term:"release harmful chemicals",ipa:"/rɪˈliːs ˈhɑːrmfl ˈkemɪklz/",meaning:"thải ra hóa chất độc hại",example:"Factories release harmful chemicals into the air."},
+{term:"urgent need",ipa:"/ˈɜːrdʒənt niːd/",meaning:"nhu cầu cấp thiết",example:"There is an urgent need for environmental action."},
+{term:"apartheid",ipa:"/əˈpɑːrtaɪt/",meaning:"chế độ phân biệt chủng tộc",example:"Nelson Mandela fought against apartheid in South Africa."},
+{term:"mệnh đề quan hệ rút gọn (reduced relative clause)",ipa:"—",meaning:"...a system that made life very hard for Black people",example:"Apartheid was a system that made life very hard for Black people."},
+{term:"speak out against",ipa:"/spiːk aʊt əˈɡenst/",meaning:"lên tiếng phản đối",example:"He spoke out against the unfair laws."},
+{term:"unfair laws",ipa:"/ʌnˈfer lɔːz/",meaning:"luật pháp bất công",example:"They protested against unfair laws."},
+{term:"organize protests",ipa:"/ˈɔːrɡənaɪz ˈproʊtests/",meaning:"tổ chức biểu tình",example:"Students organized protests for equal rights."},
+{term:"be arrested",ipa:"/biː əˈrestɪd/",meaning:"bị bắt",example:"He was arrested for organizing illegal protests."},
+{term:"give up on sth",ipa:"/ɡɪv ʌp ɒn/",meaning:"từ bỏ điều gì",example:"He never gave up on his dream."},
+{term:"election",ipa:"/ɪˈlekʃn/",meaning:"cuộc bầu cử",example:"South Africa held its first election in 1994."},
+{term:"be released from prison",ipa:"/biː rɪˈliːst frəm ˈprɪzn/",meaning:"được thả khỏi tù",example:"He was released from prison in 1990."},
+{term:"vote",ipa:"/voʊt/",meaning:"bỏ phiếu",example:"Everyone could vote regardless of skin color."},
+{term:"be elected",ipa:"/biː ɪˈlektɪd/",meaning:"được bầu (câu bị động)",example:"Mandela was elected President in 1994."},
+{term:"bring people together",ipa:"/brɪŋ ˈpiːpl təˈɡeðər/",meaning:"đoàn kết mọi người",example:"He worked hard to bring people together."},
+{term:"inspire",ipa:"/ɪnˈspaɪər/",meaning:"truyền cảm hứng",example:"His work inspired many people around the world."},
+{term:"justice",ipa:"/ˈdʒʌstɪs/",meaning:"công lý",example:"He fought for justice and equality."},
+{term:"programmer",ipa:"/ˈproʊɡræmər/",meaning:"lập trình viên",example:"Ada Lovelace is known as the first computer programmer."},
+{term:"passion for",ipa:"/ˈpæʃn fɔːr/",meaning:"niềm đam mê với",example:"She had a passion for mathematics."},
+{term:"set sb apart",ipa:"/set əˈpɑːrt/",meaning:"làm ai đó nổi bật, khác biệt",example:"Her intelligence set her apart from others."},
+{term:"in contrast to",ipa:"/ɪn ˈkɒntræst tuː/",meaning:"trái ngược với",example:"In contrast to her father, she loved mathematics."},
+{term:"significant",ipa:"/sɪɡˈnɪfɪkənt/",meaning:"quan trọng, đáng kể",example:"Her contribution was significant to computer science."},
+{term:"minor",ipa:"/ˈmaɪnər/",meaning:"nhỏ, không đáng kể (trái nghĩa của significant)",example:"It was only a minor problem."},
+{term:"câu chẻ (cleft sentence)",ipa:"—",meaning:"It was her own detailed notes... that made history",example:"It was her own detailed notes added to the translation that made history."},
+{term:"mệnh đề quan hệ không xác định",ipa:"—",meaning:"..., which were longer than...",example:"These notes, which were longer than the original article, included the first algorithm."},
+{term:"recognize",ipa:"/ˈrekəɡnaɪz/",meaning:"nhận ra, công nhận",example:"She was the first to recognize computers' potential."},
+{term:"instructions",ipa:"/ɪnˈstrʌkʃnz/",meaning:"chỉ dẫn, hướng dẫn",example:"The machine followed a set of instructions."},
+{term:"visionary",ipa:"/ˈvɪʒəneri/",meaning:"có tầm nhìn xa, sáng tạo",example:"She had visionary ideas about computers."},
+{term:"innovative",ipa:"/ˈɪnəveɪtɪv/",meaning:"sáng tạo, đổi mới (đồng nghĩa với visionary)",example:"She had innovative ideas about technology."},
+{term:"stem from",ipa:"/stem frəm/",meaning:"bắt nguồn từ",example:"Modern computers stemmed from her ideas."},
+{term:"primary benefit",ipa:"/ˈpraɪməri ˈbenɪfɪt/",meaning:"lợi ích chính",example:"The primary benefit is improved air quality."},
+{term:"improve air quality",ipa:"/ɪmˈpruːv er ˈkwɒləti/",meaning:"cải thiện chất lượng không khí",example:"Trees help improve air quality in cities."},
+{term:"trap",ipa:"/træp/",meaning:"giữ lại, bẫy (bụi, hạt)",example:"Plants trap dust and airborne particles."},
+{term:"crucial role",ipa:"/ˈkruːʃl roʊl/",meaning:"vai trò then chốt",example:"Green spaces play a crucial role in city planning."},
+{term:"refuge",ipa:"/ˈrefjuːdʒ/",meaning:"nơi trú ẩn",example:"Green spaces serve as a refuge for wildlife."},
+{term:"scarce",ipa:"/skers/",meaning:"khan hiếm",example:"Natural habitats are scarce in cities."},
+{term:"recreation",ipa:"/ˌrekriˈeɪʃn/",meaning:"sự giải trí, nghỉ ngơi",example:"Parks offer opportunities for recreation."},
+{term:"well-being",ipa:"/ˈwel biːɪŋ/",meaning:"sự khỏe mạnh, phúc lợi",example:"Green spaces improve mental well-being."},
+{term:"livable",ipa:"/ˈlɪvəbl/",meaning:"đáng sống",example:"Green spaces make cities more livable."},
+{term:"inhabit / uninhabitable",ipa:"/ɪnˈhæbɪt / ʌnɪnˈhæbɪtəbl/",meaning:"cư trú, sinh sống / không thể ở được (trái nghĩa của livable)",example:"This area is now uninhabitable due to pollution."}
+];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+let order = [];
+let current = 0;
+let score = 0;
+let wrongItems = [];
+let answered = false;
+
+function startQuiz(){
+  order = shuffle(VOCAB);
+  current = 0;
+  score = 0;
+  wrongItems = [];
+  renderQuestion();
+}
+
+function buildChoices(correctItem){
+  const pool = VOCAB.filter(v=>v.meaning!==correctItem.meaning);
+  const distractors = shuffle(pool).slice(0,3).map(v=>v.meaning);
+  return shuffle([correctItem.meaning, ...distractors]);
+}
+
+function renderQuestion(){
+  answered = false;
+  const total = order.length;
+  document.getElementById('counterTag').textContent = (current+1)+" / "+total;
+  document.getElementById('progressFill').style.width = ((current)/total*100)+"%";
+
+  const item = order[current];
+  const card = document.getElementById('quizCard');
+
+  let bodyHtml = `
+    <div class="qmeta"><span>Câu ${current+1} / ${total}</span></div>
+    <div class="prompt-label">Từ/cụm từ/cấu trúc này có nghĩa là gì?</div>
+    <div class="term">${item.term}</div>
+    <div class="ipa">${item.ipa}</div>
+    <div class="choices" id="choicesBox">
+  `;
+  const choices = buildChoices(item);
+  choices.forEach(c=>{
+    bodyHtml += `<button class="choice-btn" data-answer="${encodeURIComponent(c)}" onclick="handleChoice(this)">${c}</button>`;
+  });
+  bodyHtml += `</div><div class="feedback" id="feedbackBox"></div>`;
+
+  card.innerHTML = bodyHtml;
+}
+
+function showFeedback(isCorrect, item){
+  const fb = document.getElementById('feedbackBox');
+  fb.classList.add('show');
+  fb.innerHTML = `
+    <div class="fb-verdict ${isCorrect?'good':'bad'}">${isCorrect ? 'Chính xác!' : 'Chưa đúng.'}</div>
+    <div class="fb-meaning">Nghĩa đúng: <strong>${item.meaning}</strong></div>
+    <div class="fb-example">Ví dụ: ${item.example}</div>
+  `;
+  const btn = document.createElement('button');
+  btn.className = 'next-btn';
+  btn.textContent = (current === order.length-1) ? 'Xem kết quả' : 'Câu tiếp theo';
+  btn.onclick = goNext;
+  fb.appendChild(btn);
+}
+
+function handleChoice(btn){
+  if(answered) return;
+  answered = true;
+  const item = order[current];
+  const chosen = decodeURIComponent(btn.getAttribute('data-answer'));
+  const isCorrect = chosen === item.meaning;
+
+  document.querySelectorAll('.choice-btn').forEach(b=>{
+    b.disabled = true;
+    const val = decodeURIComponent(b.getAttribute('data-answer'));
+    if(val === item.meaning) b.classList.add('correct');
+    else if(b===btn) b.classList.add('wrong');
+  });
+
+  if(isCorrect) score++;
+  else wrongItems.push(item);
+
+  showFeedback(isCorrect, item);
+}
+
+function goNext(){
+  if(current === order.length-1){
+    renderResults();
+  } else {
+    current++;
+    renderQuestion();
+  }
+}
+
+function renderResults(){
+  document.getElementById('progressFill').style.width = "100%";
+  document.getElementById('counterTag').textContent = order.length+" / "+order.length;
+  const total = order.length;
+  const pct = Math.round(score/total*100);
+
+  let html = `
+    <div class="results">
+      <h2>Hoàn thành!</h2>
+      <div class="score-big">${score}/${total}</div>
+      <div class="score-sub">Bạn đã trả lời đúng ${pct}% số câu hỏi.</div>
+  `;
+
+  if(wrongItems.length === 0){
+    html += `<div class="no-wrong">Xuất sắc! Không có câu nào sai.</div>`;
+  } else {
+    html += `<ul class="review-list">`;
+    wrongItems.forEach(item=>{
+      html += `<li><b>${item.term}</b> — ${item.meaning}</li>`;
+    });
+    html += `</ul>`;
+  }
+
+  html += `<button class="restart-btn" onclick="startQuiz()">Làm lại từ đầu</button></div>`;
+
+  document.getElementById('quizCard').innerHTML = html;
+}
+
+startQuiz();
+</script>
+</body>
+</html>
